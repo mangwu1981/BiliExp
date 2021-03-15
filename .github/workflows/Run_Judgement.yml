@@ -1,0 +1,32 @@
+name: 'Run_Judgement'
+
+
+on:
+  schedule:
+    - cron: '*/30 0-4,5-8,10-17 * * *'
+  watch:
+    types: started
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    if: github.repository != 'happy888888/BiliExp' || github.event_name == 'workflow_dispatch'
+    steps:
+    - uses: actions/checkout@v2
+      with: 
+        repository: ${{ secrets.REPOSITORY }}
+        ref: ${{ secrets.REF }}
+
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/run_in_Actions/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Run_Judgement
+      run: bash ./run_in_Actions/run_BiliExp.sh
+      env:
+          ADVCONFIG: ${{ secrets.JUDCONFIG }}
+          BILICONFIG: ${{ secrets.BILICONFIG }}
+          PUSH_MESSAGE: ${{ secrets.PUSH_MESSAGE }}
